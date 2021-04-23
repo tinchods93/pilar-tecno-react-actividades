@@ -35,7 +35,7 @@ class Item extends Component {
         className='itemContainer row'
         style={{ marginTop: '10px', marginBottom: '2px' }}>
         <div className='col-1'>
-          <i class='fas fa-caret-right'></i>
+          <i className='fas fa-caret-right'></i>
         </div>
         <div className='col'>
           <this.ItemAttribute propertyKey={'puesto'} />
@@ -45,7 +45,7 @@ class Item extends Component {
         </div>
         <div className='col-3'>
           <i
-            class='fas fa-trash-alt'
+            className='fas fa-trash-alt'
             onClick={() => this.props.removeItemHandler(this.props.id)}
             style={{
               cursor: 'pointer',

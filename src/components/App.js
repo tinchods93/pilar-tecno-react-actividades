@@ -3,7 +3,7 @@ import ItemList from './ItemList';
 
 function App() {
   return (
-    <div className='container' style={{ marginTop: '20px', marginLeft: '20%' }}>
+    <div className='container' style={{ marginTop: '20px' }}>
       <div className='row'>
         <ItemList />
       </div>
