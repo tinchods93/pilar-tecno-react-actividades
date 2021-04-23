@@ -27,6 +27,7 @@ class ItemList extends Component {
       itemList: new_list,
     });
   };
+
   removeItem = (id) => {
     let new_list = [...this.state.itemList];
 
@@ -61,7 +62,16 @@ class ItemList extends Component {
         );
       });
     }
-    return <li>No hay ningun item cargado</li>;
+    return (
+      <li
+        className='itemContainer row'
+        style={{ marginTop: '10px', marginBottom: '2px' }}>
+        <div className='col-1'>
+          <i className='fas fa-caret-right'></i>
+        </div>
+        No hay ningun item cargado
+      </li>
+    );
   };
 
   newItemBtnHandler = () => {
