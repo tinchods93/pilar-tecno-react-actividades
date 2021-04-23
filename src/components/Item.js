@@ -1,15 +1,6 @@
 import { Component } from 'react';
 
 class Item extends Component {
-  // constructor(props) {
-  //   super(props);
-  //   this.id = this.props.id;
-  //   this.puesto = this.props.puesto;
-  //   this.empresa = this.props.empresa;
-  //   this.ciudad = this.props.ciudad;
-  //   this.pais = this.props.pais;
-  // }
-
   capitalize = (word) => {
     let first_letter = String(word)[0];
     first_letter = first_letter.toUpperCase();
@@ -53,12 +44,6 @@ class Item extends Component {
               marginTop: '10px',
               color: '#de5a5a',
             }}></i>
-          {/* <button
-            className='btn btn-danger'
-            onClick={() => this.props.removeItemHandler(this.props.id)}
-            style={{ width: '1.5rem', height: '1.5rem', padding: '1px' }}>
-            X
-          </button> */}
         </div>
       </li>
     );
