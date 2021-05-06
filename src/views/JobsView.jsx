@@ -1,9 +1,7 @@
 import React, { Component } from 'react';
 import FormComponent from '../components/FormComponent';
 import { JobModel } from '../models/Models';
-import { SelectComponent } from '../components/SelectComponent';
 import { DataBaseFunctions } from '../utils/localStorageFunctions';
-import { ItemComponent } from '../components/ItemComponent';
 import { ListComponent } from '../components/ListComponent';
 
 export class JobsView extends Component {

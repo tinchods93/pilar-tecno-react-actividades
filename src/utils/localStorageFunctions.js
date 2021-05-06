@@ -13,36 +13,43 @@ const GetAllData = () => {
 
 //Countries
 export const SaveCountry = (countryToSave) => {
-  //Esta funcion de Save es la unica diferente, dado que sin ella no pueden existir los demas datos
+  try {
+    //Esta funcion de Save es la unica diferente, dado que sin ella no pueden existir los demas datos
 
-  //primero normalizamos el string recibido
-  countryToSave = normalizeObj(countryToSave);
+    //primero normalizamos el string recibido
+    countryToSave = normalizeObj(countryToSave);
 
-  //Primero obtenemos los nombres de los paises
-  let countriesSaved = GetCountriesNames();
+    //Primero obtenemos los nombres de los paises
+    let countriesSaved = GetCountriesNames();
 
-  //luego revisamos si el nombre ya existe, si es asi, no lo guardamos
-  if (countriesSaved.includes(countryToSave.name)) {
-    alert(`The Country ${capitalize(countryToSave.name)} already exists`);
-  } else {
-    const countryName = countryToSave.name;
-    //si no existe, revisamos si es que la base de datos (en la localstorage) existe, si no existe => la creamos
-    if (Object.is(localStorage.getItem(storageName), null)) {
-      //si no existe, creamos un objeto vacio
-      const countryBody = {};
-      //y armamos la base de nuestra localstorage
-      countryBody[countryName] = { cities: {} };
-      SaveToStorage({ ...countryBody });
+    //luego revisamos si el nombre ya existe, si es asi, no lo guardamos
+    if (
+      countriesSaved.includes(countryToSave.name) ||
+      countryToSave.name === ('' || ' ')
+    ) {
+      alert(`The Country ${capitalize(countryToSave.name)} already exists`);
     } else {
-      //si ya existe, obteneoms una referencia a los datos
-      let countries = JSON.parse(localStorage.getItem(storageName));
-      //agregamos lo nuevo
-      countries[countryName] = { cities: {} };
-      //y lo guardamos
-      SaveToStorage(countries);
+      const countryName = countryToSave.name;
+      //si no existe, revisamos si es que la base de datos (en la localstorage) existe, si no existe => la creamos
+      if (Object.is(localStorage.getItem(storageName), null)) {
+        //si no existe, creamos un objeto vacio
+        const countryBody = {};
+        //y armamos la base de nuestra localstorage
+        countryBody[countryName] = { cities: {} };
+        SaveToStorage({ ...countryBody });
+      } else {
+        //si ya existe, obteneoms una referencia a los datos
+        let countries = JSON.parse(localStorage.getItem(storageName));
+        //agregamos lo nuevo
+        countries[countryName] = { cities: {} };
+        //y lo guardamos
+        SaveToStorage(countries);
+      }
+      alert(
+        `The Country ${capitalize(countryName)} has been saved successfully`
+      );
     }
-    alert(`The Country ${capitalize(countryName)} has been saved successfully`);
-  }
+  } catch (error) {}
 };
 
 export const GetCountriesNames = () => {
@@ -61,7 +68,7 @@ export const GetCountryByName = (name) => {
   let countries = JSON.parse(localStorage.getItem(storageName));
 
   if (Object.is(countries, null)) {
-    return [-1];
+    return ['No country, city and company loaded'];
   } else {
     //la primer Key son los paises
     return countries[name];
@@ -84,36 +91,47 @@ export const RemoveCountry = (countryToRemove) => {
   let data = GetAllData();
   let countriesNames = GetCountriesNames();
   let newCountries = {};
-  countriesNames.forEach((country) => {
-    if (country !== countryToRemove) {
-      newCountries[country] = data[country];
+  try {
+    countriesNames.forEach((country) => {
+      if (country !== countryToRemove) {
+        newCountries[country] = data[country];
+      }
+    });
+    // console.log(newCountries);
+    data = newCountries;
+    SaveToStorage(data);
+    if (Object.keys(data).length <= 0) {
+      localStorage.removeItem(storageName);
     }
-  });
-  // console.log(newCountries);
-  data = newCountries;
-  SaveToStorage(data);
-  // console.log(data);
+  } catch (error) {}
 };
 
 //Cities
 export const SaveCity = (cityToSave) => {
-  let data = GetAllData();
-  cityToSave = normalizeObj(cityToSave);
-  const cities = GetCities(cityToSave.country);
-  if (GetCitiesNames(cityToSave.country).includes(cityToSave.name)) {
-    alert(`The city ${capitalize(cityToSave.name)} already exists`);
-  } else {
-    cities[cityToSave.name] = cityToSave;
-    data[cityToSave.country].cities = cities;
-    console.log(data);
-    SaveToStorage(data);
-  }
-  console.log(cities);
+  try {
+    let data = GetAllData();
+    cityToSave = normalizeObj(cityToSave);
+    const cities = GetCities(cityToSave.country);
+    if (
+      GetCitiesNames(cityToSave.country).includes(cityToSave.name) ||
+      cityToSave.name === ('' || ' ')
+    ) {
+      alert(`The city ${capitalize(cityToSave.name)} already exists`);
+    } else {
+      cities[cityToSave.name] = cityToSave;
+      data[cityToSave.country].cities = cities;
+      console.log(data);
+      SaveToStorage(data);
+    }
+  } catch (error) {}
 };
 
 //Claramente, devuelve solo los nombres de las cities
 export const GetCitiesNames = (country) => {
   let data = GetAllData();
+  if (country === (undefined || -1)) {
+    return ['No country, city and company loaded/found'];
+  }
   return Object.keys(data[country].cities);
 };
 //Esto devuelve el objeto Cities adentro de un country especifico
@@ -123,40 +141,45 @@ const GetCities = (country) => {
 };
 
 export const RemoveCity = (country, cityName) => {
-  console.log(cityName);
   cityName = normalize(cityName);
   let data = GetAllData();
   let citiesNames = GetCitiesNames(country);
   let newCities = {};
-  citiesNames.forEach((city) => {
-    if (city !== cityName) {
-      newCities[city] = data[country].cities[city];
-      console.log(data[country].cities[city]);
-    }
-  });
-  data[country].cities = newCities;
-  SaveToStorage(data);
+  try {
+    citiesNames.forEach((city) => {
+      if (city !== cityName) {
+        newCities[city] = data[country].cities[city];
+        console.log(data[country].cities[city]);
+      }
+    });
+    data[country].cities = newCities;
+    SaveToStorage(data);
+  } catch (error) {}
   // console.log(data);
 };
 
 //Companies
-export const SaveCompany = (jobToSave) => {
-  let data = GetAllData();
-  jobToSave = normalizeObj(jobToSave);
-  const companies = GetCompanies(jobToSave.country, jobToSave.city);
-  if (
-    GetCompaniesNames(jobToSave.country, jobToSave.city).includes(
-      jobToSave.name
-    )
-  ) {
-    alert(`The company ${capitalize(jobToSave.name)} already exists`);
-  } else {
-    companies[jobToSave.name] = jobToSave;
-    data[jobToSave.country].cities[jobToSave.city].companies = companies;
-    console.log(data);
-    SaveToStorage(data);
-  }
-  console.log(companies);
+export const SaveCompany = (companyToSave) => {
+  try {
+    let data = GetAllData();
+    companyToSave = normalizeObj(companyToSave);
+    const companies = GetCompanies(companyToSave.country, companyToSave.city);
+    if (
+      GetCompaniesNames(companyToSave.country, companyToSave.city).includes(
+        companyToSave.name
+      ) ||
+      companyToSave.name === ('' || ' ')
+    ) {
+      alert(`The company ${capitalize(companyToSave.name)} already exists`);
+    } else {
+      companies[companyToSave.name] = companyToSave;
+      data[companyToSave.country].cities[
+        companyToSave.city
+      ].companies = companies;
+      console.log(data);
+      SaveToStorage(data);
+    }
+  } catch (error) {}
 };
 
 export const RemoveCompany = (country, city, companyToRemove) => {
@@ -165,22 +188,35 @@ export const RemoveCompany = (country, city, companyToRemove) => {
   let data = GetAllData();
   let companiesNames = GetCompaniesNames(country, city);
   let newCompanies = {};
-  companiesNames.forEach((companyName) => {
-    if (companyName !== companyToRemove) {
-      newCompanies[companyName] =
-        data[country].cities[city].companies[companyName];
-      // console.log(data[country].cities[companyName]);
-    }
-  });
-  data[country].cities[city].companies = newCompanies;
-  console.log(data);
-  SaveToStorage(data);
+
+  try {
+    companiesNames.forEach((companyName) => {
+      if (companyName !== companyToRemove) {
+        newCompanies[companyName] =
+          data[country].cities[city].companies[companyName];
+        // console.log(data[country].cities[companyName]);
+      }
+    });
+    data[country].cities[city].companies = newCompanies;
+
+    SaveToStorage(data);
+  } catch (error) {}
 };
 
 //Claramente, devuelve solo los nombres de las cities
 export const GetCompaniesNames = (country, city) => {
-  let data = GetAllData();
-  return Object.keys(data[country].cities[city].companies);
+  try {
+    let data = GetAllData();
+    if (country === (undefined || -1)) {
+      return ['No country, city and company loaded/found'];
+    }
+    if (city === (undefined || -1)) {
+      return ['No city and company loaded/found'];
+    }
+    return Object.keys(data[country].cities[city].companies);
+  } catch (error) {
+    return ['Empty'];
+  }
 };
 //Esto devuelve el objeto Cities adentro de un country especifico
 const GetCompanies = (country, city) => {
@@ -189,23 +225,28 @@ const GetCompanies = (country, city) => {
 };
 
 export const SaveJob = (jobToSave) => {
-  let data = GetAllData();
-  jobToSave = normalizeObj(jobToSave);
-  const jobs = GetJobs(jobToSave.country, jobToSave.city, jobToSave.company);
-  if (
-    GetJobsNames(jobToSave.country, jobToSave.city, jobToSave.company).includes(
-      jobToSave.name
-    )
-  ) {
-    alert(`The job ${capitalize(jobToSave.name)} already exists`);
-  } else {
-    jobs[jobToSave.name] = jobToSave;
-    data[jobToSave.country].cities[jobToSave.city].companies[
-      jobToSave.company
-    ].jobs = jobs;
-    console.log(data);
-    SaveToStorage(data);
-  }
+  try {
+    let data = GetAllData();
+    jobToSave = normalizeObj(jobToSave);
+    const jobs = GetJobs(jobToSave.country, jobToSave.city, jobToSave.company);
+    if (
+      GetJobsNames(
+        jobToSave.country,
+        jobToSave.city,
+        jobToSave.company
+      ).includes(jobToSave.name) ||
+      jobToSave === ('' || ' ')
+    ) {
+      alert(`The job ${capitalize(jobToSave.name)} already exists`);
+    } else {
+      jobs[jobToSave.name] = jobToSave;
+      data[jobToSave.country].cities[jobToSave.city].companies[
+        jobToSave.company
+      ].jobs = jobs;
+      console.log(data);
+      SaveToStorage(data);
+    }
+  } catch (error) {}
 };
 
 export const RemoveJob = (country, city, company, jobToRemove) => {
@@ -218,25 +259,33 @@ export const RemoveJob = (country, city, company, jobToRemove) => {
   let jobNames = GetJobsNames(country, city, company);
   let newJobs = {};
 
-  jobNames.forEach((jobName) => {
-    if (jobName !== jobToRemove) {
-      newJobs[jobName] =
-        data[country].cities[city].companies[company].jobs[jobName];
-    }
-  });
-  data[country].cities[city].companies[company].jobs = newJobs;
-  console.log(data);
-  SaveToStorage(data);
+  try {
+    jobNames.forEach((jobName) => {
+      if (jobName !== jobToRemove) {
+        newJobs[jobName] =
+          data[country].cities[city].companies[company].jobs[jobName];
+      }
+    });
+    data[country].cities[city].companies[company].jobs = newJobs;
+
+    SaveToStorage(data);
+  } catch (error) {}
 };
 
 export const GetJobsNames = (country, city, company) => {
-  let data = GetAllData();
+  try {
+    let data = GetAllData();
 
-  if (country === undefined) return ['No country, city and company loaded'];
-  if (city === undefined) return ['No city and company loaded'];
-  if (company === undefined) return ['No company loaded'];
+    if (country === (undefined || -1)) {
+      return ['No country, city and company loaded'];
+    }
+    if (city === (undefined || -1)) return ['No city and company loaded'];
+    if (company === (undefined || -1)) return ['No company loaded'];
 
-  return Object.keys(data[country].cities[city].companies[company].jobs);
+    return Object.keys(data[country].cities[city].companies[company].jobs);
+  } catch (error) {
+    return ['Empty'];
+  }
 };
 
 const GetJobs = (country, city, company) => {

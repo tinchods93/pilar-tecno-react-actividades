@@ -122,7 +122,6 @@ export default class LocalListComponent extends Component {
   prepareList() {
     const countryList = DataBaseFunctions.GetCountriesNames();
     const cityList = DataBaseFunctions.GetCitiesNames(countryList[0]);
-    console.log(countryList);
 
     this.setState({
       countryList: countryList,

@@ -29,7 +29,6 @@ export default class FormComponent extends Component {
     this.prepareComponent();
   }
   prepareComponent = () => {
-    console.log('prepareComponent');
     const keysFromObject = Object.keys(this.state.objectToShow);
     this.initiateSelectedButtons();
     this.setState({ objectAttributes: keysFromObject });
@@ -38,7 +37,7 @@ export default class FormComponent extends Component {
   initiateSelectedButtons = () => {
     const obj = this.state.objectToShow;
     const attributes = Object.keys(obj);
-    console.log(attributes);
+
     const dataListForSelectButtons = [];
 
     attributes.forEach((attribute, index) => {
@@ -67,7 +66,7 @@ export default class FormComponent extends Component {
         }
       }
     });
-    console.log(dataListForSelectButtons);
+
     this.setState({
       dataListForSelectButtons: dataListForSelectButtons,
       objectToShow: obj,

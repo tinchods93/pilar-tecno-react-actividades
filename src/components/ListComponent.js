@@ -19,6 +19,7 @@ export const ListComponent = ({
           <SelectComponent
             onChangeFunction={onChangeFunction}
             dataList={dataList[index]}
+            key={index}
             title={selectTitle[index]}
             attribute={attribute[index]}
           />
@@ -47,7 +48,3 @@ export const ListComponent = ({
     </>
   );
 };
-
-{
-  /* <ListComp dataList={cityList}objToShow={}listTitle={} onChangeFunction={this.selectHandler}selectTitle={}attribute={}removeFunction={this.removeCity}/> */
-}

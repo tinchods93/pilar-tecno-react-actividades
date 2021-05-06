@@ -21,7 +21,7 @@ export class CountriesView extends Component {
 
   prepareList() {
     const countryList = DataBaseFunctions.GetCountriesNames();
-    console.log(countryList);
+
     this.setState({ countryListNames: countryList });
   }
 
