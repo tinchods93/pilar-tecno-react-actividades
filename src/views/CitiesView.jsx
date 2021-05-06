@@ -1,42 +1,39 @@
 import React, { Component } from 'react';
 import FormComponent from '../components/FormComponent';
 import { CityModel } from '../models/Models';
-import {
-  GetCountriesNames,
-  SaveCity,
-  GetCitiesNames,
-  RemoveCity,
-} from '../utils/localStorageFunctions';
-import { capitalize } from '../utils/StringUtilities';
+import { DataBaseFunctions } from '../utils/localStorageFunctions';
+import { ListComponent } from '../components/ListComponent';
 
 export class CitiesView extends Component {
   constructor() {
     super();
     this.state = {
-      cities: [],
       cityObject: CityModel,
       showForm: 'none',
     };
-    this.SaveCity = SaveCity.bind(this);
+    this.SaveCity = DataBaseFunctions.SaveCity.bind(this);
   }
 
   spawnForm = () => {
-    if (this.state.showForm !== 'none') {
+    const { showForm, cityObject } = this.state;
+    if (showForm !== 'none') {
       return (
         <FormComponent
-          objectToShow={this.state.cityObject}
+          objectToShow={cityObject}
           title='New City Form'
           selectButtonsIndexes={[1]}
           attributesToIgnore={['companies']}
-          dataListForSelectButtons={[GetCountriesNames()]}
+          dataListForSelectButtons={[DataBaseFunctions.GetCountriesNames()]}
           savingFunction={this.SaveCity}
+          updateFunction={this.updateList}
         />
       );
     }
   };
 
   showForm = () => {
-    this.state.showForm === 'none'
+    const { showForm } = this.state;
+    showForm === 'none'
       ? this.setState({ showForm: 'block' })
       : this.setState({ showForm: 'none' });
   };
@@ -44,19 +41,19 @@ export class CitiesView extends Component {
   render() {
     return (
       <>
-        <div className='formContainer col-4'>
+        <div className='formContainer col'>
           <button className='btn btn-custom' onClick={() => this.showForm()}>
             New City
           </button>
           {this.spawnForm()}
         </div>
-        <ListComponent listTitle='Cities' />
+        <LocalList listTitle='Cities' />
       </>
     );
   }
 }
 
-export default class ListComponent extends Component {
+export default class LocalList extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -66,46 +63,14 @@ export default class ListComponent extends Component {
       countrySelected: '',
     };
     this.removeCity = this.removeCity.bind(this);
-  }
-
-  spawnItems() {
-    return this.state.citiesToShow.length > 0 ? (
-      this.state.citiesToShow.map((item, index) => {
-        return (
-          <li
-            className='itemContainer row'
-            style={{ marginTop: '10px', marginBottom: '2px' }}
-            key={index}>
-            <div className='col-1'>
-              <i className='fas fa-caret-right'></i>
-            </div>
-            <div className='col'>{capitalize(item)}</div>
-            <div className='col-3'>
-              <i
-                className='fas fa-trash-alt'
-                onClick={this.removeCity}
-                id={item}
-                style={{
-                  cursor: 'pointer',
-                  fontSize: '1.5rem',
-                  marginTop: '10px',
-                  color: '#de5a5a',
-                }}></i>
-            </div>
-          </li>
-        );
-      })
-    ) : (
-      <li>No Data to Show</li>
-    );
+    this.selectHandler = this.selectHandler.bind(this);
   }
 
   removeCity(ev) {
-    // console.log(this.state.countrySelected);
-    // console.log(ev.target.id);
-    RemoveCity(this.state.countrySelected, ev.target.id);
+    const { countrySelected } = this.state;
+    DataBaseFunctions.RemoveCity(countrySelected, ev.target.id);
     this.setState({
-      citiesToShow: GetCitiesNames(this.state.countrySelected),
+      citiesToShow: DataBaseFunctions.GetCitiesNames(countrySelected),
     });
   }
 
@@ -116,48 +81,33 @@ export default class ListComponent extends Component {
   selectHandler = (ev) => {
     this.setState({
       countrySelected: ev.target.value,
-      citiesToShow: GetCitiesNames(ev.target.value),
+      citiesToShow: DataBaseFunctions.GetCitiesNames(ev.target.value),
     });
   };
 
   prepareList() {
-    const countryList = GetCountriesNames();
-    console.log(countryList);
+    const countryList = DataBaseFunctions.GetCountriesNames();
 
     this.setState({
       countryList: countryList,
       countrySelected: countryList[0],
-      citiesToShow: GetCitiesNames(countryList[0]),
+      citiesToShow: DataBaseFunctions.GetCitiesNames(countryList[0]),
     });
   }
 
   render() {
+    const { countryList, citiesToShow } = this.state;
+    const { listTitle } = this.props;
     return (
-      <>
-        <div className='listContainer'>
-          <ul>
-            <div className='extra-data'>
-              <h3>List of {this.props.listTitle}</h3>
-              <div className='selectComponents'>
-                <label htmlFor='select'>Country</label>
-                <select
-                  name='country'
-                  id='country'
-                  onChange={this.selectHandler}>
-                  {this.state.countryList.map((country, index) => {
-                    return (
-                      <option value={country} key={index}>
-                        {capitalize(country)}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-            </div>
-            {this.spawnItems()}
-          </ul>
-        </div>
-      </>
+      <ListComponent
+        dataList={[countryList]}
+        itemList={citiesToShow}
+        listTitle={listTitle}
+        onChangeFunction={this.selectHandler}
+        selectTitle={['Country']}
+        attribute={['country']}
+        removeFunction={this.removeCity}
+      />
     );
   }
 }

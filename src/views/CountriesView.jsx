@@ -1,12 +1,8 @@
 import React, { Component } from 'react';
 import FormComponent from '../components/FormComponent';
 import { CountryModel } from '../models/Models';
-import {
-  SaveCountry,
-  GetCountriesNames,
-  RemoveCountry,
-} from '../utils/localStorageFunctions';
-import { capitalize } from '../utils/StringUtilities';
+import { DataBaseFunctions } from '../utils/localStorageFunctions';
+import { ListComponent } from '../components/ListComponent';
 
 export class CountriesView extends Component {
   constructor() {
@@ -16,7 +12,7 @@ export class CountriesView extends Component {
       countryObject: CountryModel,
       showForm: 'none',
     };
-    this.SaveCountry = SaveCountry.bind(this);
+    this.SaveCountry = DataBaseFunctions.SaveCountry.bind(this);
   }
 
   componentDidMount() {
@@ -24,16 +20,17 @@ export class CountriesView extends Component {
   }
 
   prepareList() {
-    const countryList = GetCountriesNames();
+    const countryList = DataBaseFunctions.GetCountriesNames();
     console.log(countryList);
     this.setState({ countryListNames: countryList });
   }
 
   spawnForm = () => {
-    if (this.state.showForm !== 'none') {
+    const { countryObject, showForm } = this.state;
+    if (showForm !== 'none') {
       return (
         <FormComponent
-          objectToShow={this.state.countryObject}
+          objectToShow={countryObject}
           title='New Country Form'
           attributesToIgnore={['cities']}
           savingFunction={this.SaveCountry}
@@ -43,7 +40,8 @@ export class CountriesView extends Component {
   };
 
   showForm = () => {
-    this.state.showForm === 'none'
+    const { showForm } = this.state;
+    showForm === 'none'
       ? this.setState({ showForm: 'block' })
       : this.setState({ showForm: 'none' });
   };
@@ -51,19 +49,19 @@ export class CountriesView extends Component {
   render() {
     return (
       <>
-        <div className='formContainer col-4'>
+        <div className='formContainer col'>
           <button className='btn btn-custom' onClick={() => this.showForm()}>
             New Country
           </button>
           {this.spawnForm()}
         </div>
-        <ListComponent listTitle='Countries' />
+        <LocalListComponent listTitle='Countries' />
       </>
     );
   }
 }
 
-export default class ListComponent extends Component {
+export default class LocalListComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -73,42 +71,8 @@ export default class ListComponent extends Component {
     this.removeCountry = this.removeCountry.bind(this);
   }
 
-  spawnItems() {
-    return this.state.countriesToShow.length > 0 ? (
-      this.state.countriesToShow.map((item, index) => {
-        return (
-          <li
-            className='itemContainer row'
-            style={{ marginTop: '10px', marginBottom: '2px' }}
-            key={index}>
-            <div className='col-1'>
-              <i className='fas fa-caret-right'></i>
-            </div>
-            <div className='col'>{capitalize(item)}</div>
-            <div className='col-3'>
-              <i
-                className='fas fa-trash-alt'
-                onClick={this.removeCountry}
-                id={item}
-                style={{
-                  cursor: 'pointer',
-                  fontSize: '1.5rem',
-                  marginTop: '10px',
-                  color: '#de5a5a',
-                }}></i>
-            </div>
-          </li>
-        );
-      })
-    ) : (
-      <li>No Data to Show</li>
-    );
-  }
-
   removeCountry(ev) {
-    // console.log(this.state.countrySelected);
-    // console.log(ev.target.id);
-    RemoveCountry(ev.target.id);
+    DataBaseFunctions.RemoveCountry(ev.target.id);
     this.updateList();
   }
 
@@ -118,22 +82,20 @@ export default class ListComponent extends Component {
 
   updateList() {
     this.setState({
-      countriesToShow: GetCountriesNames(),
+      countriesToShow: DataBaseFunctions.GetCountriesNames(),
     });
   }
 
   render() {
+    const { countriesToShow } = this.state;
+    const { listTitle } = this.props;
     return (
-      <>
-        <div className='listContainer'>
-          <ul>
-            <div className='extra-data'>
-              <h3>List of {this.props.listTitle}</h3>
-            </div>
-            {this.spawnItems()}
-          </ul>
-        </div>
-      </>
+      <ListComponent
+        dataList={[]}
+        itemList={countriesToShow}
+        listTitle={listTitle}
+        removeFunction={this.removeCountry}
+      />
     );
   }
 }

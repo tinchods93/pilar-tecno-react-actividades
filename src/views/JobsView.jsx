@@ -1,15 +1,10 @@
 import React, { Component } from 'react';
 import FormComponent from '../components/FormComponent';
 import { JobModel } from '../models/Models';
-import {
-  SaveJob,
-  GetCountriesNames,
-  GetCitiesNames,
-  GetCompaniesNames,
-  RemoveJob,
-  GetJobsNames,
-} from '../utils/localStorageFunctions';
-import { capitalize } from '../utils/StringUtilities';
+import { SelectComponent } from '../components/SelectComponent';
+import { DataBaseFunctions } from '../utils/localStorageFunctions';
+import { ItemComponent } from '../components/ItemComponent';
+import { ListComponent } from '../components/ListComponent';
 
 export class JobsView extends Component {
   constructor() {
@@ -19,7 +14,7 @@ export class JobsView extends Component {
       jobObject: JobModel,
       showForm: 'none',
     };
-    this.SaveJob = SaveJob.bind(this);
+    this.SaveJob = DataBaseFunctions.SaveJob.bind(this);
   }
 
   spawnForm = () => {
@@ -49,13 +44,13 @@ export class JobsView extends Component {
           </button>
           {this.spawnForm()}
         </div>
-        <ListComponent listTitle='Jobs' />
+        <LocalListComponent listTitle='Jobs' />
       </>
     );
   }
 }
 
-export default class ListComponent extends Component {
+export default class LocalListComponent extends Component {
   constructor(props) {
     super(props);
     this.state = {
@@ -69,43 +64,23 @@ export default class ListComponent extends Component {
       companySelected: '',
     };
     this.removeJob = this.removeJob.bind(this);
-  }
-
-  spawnItems() {
-    return this.state.jobsToShow.length > 0 ? (
-      this.state.jobsToShow.map((item, index) => {
-        return (
-          <li
-            className='itemContainer row'
-            style={{ marginTop: '10px', marginBottom: '2px' }}
-            key={index}>
-            <div className='marcadorLista'>
-              <i className='fas fa-caret-right'></i>
-            </div>
-            <div className='itemData'>{capitalize(item)}</div>
-            <div className='itemIcons'>
-              <i
-                className='fas fa-trash-alt'
-                onClick={this.removeJob}
-                id={item}></i>
-            </div>
-          </li>
-        );
-      })
-    ) : (
-      <li>No Data to Show</li>
-    );
+    this.selectHandler = this.selectHandler.bind(this);
   }
 
   removeJob(ev) {
-    RemoveJob(
-      this.state.countrySelected,
-      this.state.citySelected,
-      this.state.companySelected,
+    const { countrySelected, citySelected, companySelected } = this.state;
+    DataBaseFunctions.RemoveJob(
+      countrySelected,
+      citySelected,
+      companySelected,
       ev.target.id
     );
     this.setState({
-      citiesToShow: GetCitiesNames(this.state.countrySelected),
+      jobsToShow: DataBaseFunctions.GetJobsNames(
+        countrySelected,
+        citySelected,
+        companySelected
+      ),
     });
   }
 
@@ -119,8 +94,11 @@ export default class ListComponent extends Component {
     switch (ev.target.id) {
       case 'country':
         const newCountrySelected = ev.target.value;
-        const cityList = GetCitiesNames(newCountrySelected);
-        const companyList = GetCompaniesNames(newCountrySelected, cityList[0]);
+        const cityList = DataBaseFunctions.GetCitiesNames(newCountrySelected);
+        const companyList = DataBaseFunctions.GetCompaniesNames(
+          newCountrySelected,
+          cityList[0]
+        );
 
         this.setState({
           cityList: cityList,
@@ -128,7 +106,7 @@ export default class ListComponent extends Component {
           countrySelected: newCountrySelected,
           citySelected: cityList[0],
           companySelected: companyList[0],
-          jobsToShow: GetJobsNames(
+          jobsToShow: DataBaseFunctions.GetJobsNames(
             newCountrySelected,
             cityList[0],
             companyList[0]
@@ -137,7 +115,7 @@ export default class ListComponent extends Component {
         break;
       case 'city':
         const newCitySelected = ev.target.value;
-        const companiesList = GetCompaniesNames(
+        const companiesList = DataBaseFunctions.GetCompaniesNames(
           this.state.countrySelected,
           newCitySelected
         );
@@ -146,7 +124,7 @@ export default class ListComponent extends Component {
           citySelected: newCitySelected,
           companyList: companiesList,
           companySelected: companiesList[0],
-          jobsToShow: GetJobsNames(
+          jobsToShow: DataBaseFunctions.GetJobsNames(
             this.state.countrySelected,
             newCitySelected,
             companiesList[0]
@@ -155,7 +133,7 @@ export default class ListComponent extends Component {
         break;
       case 'company':
         const newCompanySelected = ev.target.value;
-        const newJobList = GetJobsNames(
+        const newJobList = DataBaseFunctions.GetJobsNames(
           this.state.countrySelected,
           this.state.citySelected,
           newCompanySelected
@@ -168,10 +146,12 @@ export default class ListComponent extends Component {
   };
 
   prepareList() {
-    const countryList = GetCountriesNames();
-    const cityList = GetCitiesNames(countryList[0]);
-    const companyList = GetCompaniesNames(countryList[0], cityList[0]);
-    console.log(countryList);
+    const countryList = DataBaseFunctions.GetCountriesNames();
+    const cityList = DataBaseFunctions.GetCitiesNames(countryList[0]);
+    const companyList = DataBaseFunctions.GetCompaniesNames(
+      countryList[0],
+      cityList[0]
+    );
 
     this.setState({
       countryList: countryList,
@@ -180,61 +160,27 @@ export default class ListComponent extends Component {
       countrySelected: countryList[0],
       citySelected: cityList[0],
       companySelected: companyList[0],
-      jobsToShow: GetJobsNames(countryList[0], cityList[0], companyList[0]),
+      jobsToShow: DataBaseFunctions.GetJobsNames(
+        countryList[0],
+        cityList[0],
+        companyList[0]
+      ),
     });
   }
 
   render() {
+    const { countryList, cityList, companyList, jobsToShow } = this.state;
+    const { listTitle } = this.props;
     return (
-      <>
-        <div className='col listContainer'>
-          <ul>
-            <div className='extra-data'>
-              <h3>List of {this.props.listTitle}</h3>
-              <div className='selectComponents'>
-                <label htmlFor='select'>Country</label>
-                <select
-                  name='country'
-                  id='country'
-                  onChange={this.selectHandler}>
-                  {this.state.countryList.map((country, index) => {
-                    return (
-                      <option value={country} key={index}>
-                        {capitalize(country)}
-                      </option>
-                    );
-                  })}
-                </select>
-                <label htmlFor='select'>City</label>
-                <select name='city' id='city' onChange={this.selectHandler}>
-                  {this.state.cityList.map((city, index) => {
-                    return (
-                      <option value={city} key={index}>
-                        {capitalize(city)}
-                      </option>
-                    );
-                  })}
-                </select>
-                <label htmlFor='select'>Company</label>
-                <select
-                  name='company'
-                  id='company'
-                  onChange={this.selectHandler}>
-                  {this.state.companyList.map((company, index) => {
-                    return (
-                      <option value={company} key={index}>
-                        {capitalize(company)}
-                      </option>
-                    );
-                  })}
-                </select>
-              </div>
-              <div className='selectComponents'></div>
-            </div>
-            {this.spawnItems()}
-          </ul>
-        </div>
-      </>
+      <ListComponent
+        dataList={[countryList, cityList, companyList]}
+        itemList={jobsToShow}
+        listTitle={listTitle}
+        onChangeFunction={this.selectHandler}
+        selectTitle={['Country', 'City', 'Company']}
+        attribute={['country', 'city', 'company']}
+        removeFunction={this.removeJob}
+      />
     );
   }
 }

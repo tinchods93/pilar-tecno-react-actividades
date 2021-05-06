@@ -243,3 +243,18 @@ const GetJobs = (country, city, company) => {
   let data = GetAllData();
   return data[country].cities[city].companies[company].jobs;
 };
+
+export const DataBaseFunctions = {
+  SaveCity: SaveCity,
+  SaveCompany: SaveCompany,
+  SaveCountry: SaveCountry,
+  SaveJob: SaveJob,
+  GetCountriesNames: GetCountriesNames,
+  GetCitiesNames: GetCitiesNames,
+  GetCompaniesNames: GetCompaniesNames,
+  GetJobsNames: GetJobsNames,
+  RemoveJob: RemoveJob,
+  RemoveCity: RemoveCity,
+  RemoveCompany: RemoveCompany,
+  RemoveCountry: RemoveCountry,
+};

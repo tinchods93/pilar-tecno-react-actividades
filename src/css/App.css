@@ -6,19 +6,6 @@ select {
   margin-left: 6%;
 }
 .listContainer {
-  width: fit-content;
-  /* background: #de5a5a; */
-  display: block;
-}
-.itemContainer {
-  display: block;
-  height: fit-content;
-  width: 100%;
-  /* background: violet; */
-  padding-bottom: 1%;
-  padding-top: 1%;
-}
-.listContainer ul {
   background: rgb(242, 240, 255);
   background: linear-gradient(
     0deg,
@@ -26,19 +13,25 @@ select {
     rgba(255, 255, 255, 1) 72%
   );
   margin-top: 5.5%;
-  padding-top: 2%;
-  padding-bottom: 2%;
+  padding: 1%;
   width: 100%;
   min-width: 12rem;
   margin-bottom: 5px;
   border-radius: 5px;
   box-shadow: 5px 8px 15px rgba(0, 0, 0, 0.2);
 }
+.itemContainer {
+  display: block;
+  /* background: chocolate; */
+  height: fit-content;
+  width: 100%;
+  padding-bottom: 1%;
+  padding-top: 1%;
+}
 
 .formContainer {
   width: 100%;
   height: 100%;
-  /* background: yellowgreen; */
 }
 
 .miForm {
@@ -49,9 +42,7 @@ select {
     rgba(255, 255, 255, 1) 72%
   );
   width: 60%;
-  padding-left: 2%;
-  padding-right: 2%;
-  padding-bottom: 2%;
+  padding: 2%;
   margin-top: 2%;
   margin-bottom: 2%;
   border-radius: 5px;
@@ -79,26 +70,19 @@ select {
   color: rgb(255, 255, 255);
 }
 
-.marcadorLista {
-  /* background: wheat; */
-  width: 100%;
-  display: inline;
-}
-.itemData {
-  /* background: teal; */
-  display: inline;
-  width: 100%;
-}
 .itemIcons {
   /* background: tomato; */
   width: 100%;
   height: 100%;
-  margin-left: 50%;
+  margin-left: 5%;
   margin-right: 0;
   display: inline;
 }
-.itemIcons i {
+.trash-icon {
+  /* background: blueviolet; */
+  display: inline;
   cursor: pointer;
-  font-size: 1rem;
+  font-size: 1.5rem;
+  margin-top: 10px;
   color: #de5a5a;
 }
