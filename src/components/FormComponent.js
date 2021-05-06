@@ -29,7 +29,6 @@ export default class FormComponent extends Component {
     this.prepareComponent();
   }
   prepareComponent = () => {
-    console.log('prepareComponent');
     const keysFromObject = Object.keys(this.state.objectToShow);
     this.initiateSelectedButtons();
     this.setState({ objectAttributes: keysFromObject });
@@ -38,7 +37,7 @@ export default class FormComponent extends Component {
   initiateSelectedButtons = () => {
     const obj = this.state.objectToShow;
     const attributes = Object.keys(obj);
-    console.log(attributes);
+
     const dataListForSelectButtons = [];
 
     attributes.forEach((attribute, index) => {
@@ -67,7 +66,7 @@ export default class FormComponent extends Component {
         }
       }
     });
-    console.log(dataListForSelectButtons);
+
     this.setState({
       dataListForSelectButtons: dataListForSelectButtons,
       objectToShow: obj,
@@ -184,6 +183,7 @@ class FormGroupSelect extends Component {
   };
 
   selectLocalHandler(ev) {
+    const { saveParentDataObj, getParentDataObj } = this.props;
     const changedAttribute = ev.target.name;
     console.log('SELECTLOCALHANDLER');
     const dataList = this.state.dataList;
@@ -196,9 +196,9 @@ class FormGroupSelect extends Component {
         const cityList = GetCitiesNames(newCountrySelected);
         const companyList = GetCompaniesNames(newCountrySelected, cityList[0]);
 
-        this.props.saveParentDataObj(changedAttribute, ev.target.value);
-        this.props.saveParentDataObj('city', cityList[0]);
-        this.props.saveParentDataObj('company', companyList[0]);
+        saveParentDataObj(changedAttribute, ev.target.value);
+        saveParentDataObj('city', cityList[0]);
+        saveParentDataObj('company', companyList[0]);
 
         dataList[1] = cityList;
         dataList[2] = companyList;
@@ -209,9 +209,9 @@ class FormGroupSelect extends Component {
         break;
       case 'city':
         const newCitySelected = ev.target.value;
-        this.props.saveParentDataObj(changedAttribute, ev.target.value);
+        saveParentDataObj(changedAttribute, ev.target.value);
         const companyieList = GetCompaniesNames(
-          this.props.getParentDataObj.country,
+          getParentDataObj.country,
           newCitySelected
         );
         dataList[2] = companyieList;
@@ -222,7 +222,7 @@ class FormGroupSelect extends Component {
         break;
       case 'company':
         const newCompanySelected = ev.target.value;
-        this.props.saveParentDataObj(changedAttribute, ev.target.value);
+        saveParentDataObj(changedAttribute, ev.target.value);
         this.setState({
           currentSelected: newCompanySelected,
         });
@@ -230,33 +230,29 @@ class FormGroupSelect extends Component {
       default:
         break;
     }
-
-    console.log(ev.target.value);
   }
 
-  componentDidUpdate() {}
-
   render() {
+    const { attribute, dataListIndex } = this.props;
+    const { dataList } = this.state;
     return (
       <div className='form-group row'>
         <label htmlFor='select' className='col-4 col-form-label'>
-          {capitalize(this.props.attribute)}
+          {capitalize(attribute)}
         </label>
         <div className='col'>
           <select
-            id={this.props.attribute}
-            name={this.props.attribute}
+            id={attribute}
+            name={attribute}
             className='form-select'
             onChange={this.updateList}>
-            {this.state.dataList[this.props.dataListIndex].map(
-              (element, index) => {
-                return (
-                  <option value={element} key={index}>
-                    {capitalize(element)}
-                  </option>
-                );
-              }
-            )}
+            {dataList[dataListIndex].map((element, index) => {
+              return (
+                <option value={element} key={index}>
+                  {capitalize(element)}
+                </option>
+              );
+            })}
           </select>
         </div>
       </div>
