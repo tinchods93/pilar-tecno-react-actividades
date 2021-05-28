@@ -20,18 +20,18 @@ const NavBar = () => {
               </a>
             </li>
             <li className='nav-item'>
-              <a className='nav-link' href='/companies'>
-                Companies
+              <a className='nav-link' href='/organizations'>
+                Organizations
+              </a>
+            </li>
+            <li className='nav-item'>
+              <a className='nav-link' href='/places'>
+                Places
               </a>
             </li>
             <li className='nav-item'>
               <a className='nav-link' href='/countries'>
                 Countries
-              </a>
-            </li>
-            <li className='nav-item'>
-              <a className='nav-link' href='/cities'>
-                Cities
               </a>
             </li>
           </ul>

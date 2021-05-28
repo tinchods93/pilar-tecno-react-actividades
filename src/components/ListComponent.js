@@ -4,6 +4,7 @@ import { ItemComponent } from './ItemComponent';
 export const ListComponent = ({
   dataList,
   itemList,
+  selected,
   listTitle,
   onChangeFunction,
   selectTitle,
@@ -12,7 +13,6 @@ export const ListComponent = ({
 }) => {
   const selectButtons = () => {
     let selectComp = [];
-
     if (dataList.length > 0) {
       for (let index = 0; index < dataList.length; index++) {
         selectComp.push(
@@ -20,6 +20,7 @@ export const ListComponent = ({
             onChangeFunction={onChangeFunction}
             dataList={dataList[index]}
             key={index}
+            selected={selected[index]}
             title={selectTitle[index]}
             attribute={attribute[index]}
           />

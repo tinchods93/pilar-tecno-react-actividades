@@ -1,24 +1,21 @@
 export const CountryModel = {
   name: '',
-  cities: {},
 };
 
-export const CityModel = {
+export const PlaceModel = {
   name: '',
-  country: '',
-  companies: {},
+  countrieId: '',
+  countrie: {},
 };
 
-export const CompanyModel = {
+export const OrganizationModel = {
   name: '',
-  country: '',
-  city: '',
-  jobs: {},
+  placeId: '',
+  place: {},
 };
 
 export const JobModel = {
-  name: '',
-  country: '',
-  city: '',
-  company: '',
+  position: '',
+  description: '',
+  organizationId: '',
 };
