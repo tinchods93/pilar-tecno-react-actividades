@@ -132,6 +132,7 @@ export default class FormComponent extends Component {
           <div className='col'>
             {this.formGroups()}
             {this.selectButtons()}
+
             <button
               type='button'
               className='btn btn-primary'

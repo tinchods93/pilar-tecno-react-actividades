@@ -17,7 +17,6 @@ export const SelectComponent = ({
     });
     return a;
   };
-
   return (
     <>
       <label htmlFor='select'>{title}</label>
