@@ -1,0 +1,88 @@
+select {
+  width: 100%;
+}
+
+.container {
+  margin-left: 6%;
+}
+.listContainer {
+  background: rgb(242, 240, 255);
+  background: linear-gradient(
+    0deg,
+    rgba(242, 240, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 72%
+  );
+  margin-top: 5.5%;
+  padding: 1%;
+  width: 100%;
+  min-width: 12rem;
+  margin-bottom: 5px;
+  border-radius: 5px;
+  box-shadow: 5px 8px 15px rgba(0, 0, 0, 0.2);
+}
+.itemContainer {
+  display: block;
+  /* background: chocolate; */
+  height: fit-content;
+  width: 100%;
+  padding-bottom: 1%;
+  padding-top: 1%;
+}
+
+.formContainer {
+  width: 100%;
+  height: 100%;
+}
+
+.miForm {
+  background: rgb(242, 240, 255);
+  background: linear-gradient(
+    0deg,
+    rgba(242, 240, 255, 1) 0%,
+    rgba(255, 255, 255, 1) 72%
+  );
+  width: 60%;
+  padding: 2%;
+  margin-top: 2%;
+  margin-bottom: 2%;
+  border-radius: 5px;
+  box-shadow: 5px 8px 15px rgba(0, 0, 0, 0.2);
+}
+
+.selectComponents {
+  margin-bottom: 1%;
+}
+.selectComponents label {
+  margin-right: 2%;
+  margin-left: 1%;
+}
+
+.miForm .form-group {
+  margin-top: 2%;
+}
+.miForm button {
+  width: 100%;
+  margin-top: 2%;
+}
+.btn-custom {
+  background-color: rgb(76, 155, 93);
+  font-weight: bold;
+  color: rgb(255, 255, 255);
+}
+
+.itemIcons {
+  /* background: tomato; */
+  width: 100%;
+  height: 100%;
+  margin-left: 5%;
+  margin-right: 0;
+  display: inline;
+}
+.trash-icon {
+  /* background: blueviolet; */
+  display: inline;
+  cursor: pointer;
+  font-size: 1.5rem;
+  margin-top: 10px;
+  color: #de5a5a;
+}
