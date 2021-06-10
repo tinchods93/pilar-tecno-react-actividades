@@ -8,11 +8,11 @@ export const ItemComponent = ({ itemList, removeFunction }) => {
           style={{ marginTop: '10px', marginBottom: '2px' }}
           key={index}>
           <i className='fas fa-caret-right itemIcons'></i>
-          {capitalize(item)}
+          {capitalize(item.name || item.position)}
           <i
             className='fas fa-trash-alt trash-icon'
             onClick={removeFunction}
-            id={item}></i>
+            id={item.id}></i>
         </li>
       );
     })

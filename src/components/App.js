@@ -1,7 +1,7 @@
 import '../css/App.css';
 import { JobsView } from '../views/JobsView';
-import { CompaniesView } from '../views/CompaniesView';
-import { CitiesView } from '../views/CitiesView';
+import { OrganizationView } from '../views/OrganizationView';
+import { PlacesView } from '../views/PlacesView';
 import { CountriesView } from '../views/CountriesView';
 import { BrowserRouter as Router, Route, Switch } from 'react-router-dom';
 import NavBar from './NavBar';
@@ -15,8 +15,11 @@ function App() {
           <Router>
             <Switch>
               <Route path='/' exact component={JobsView}></Route>
-              <Route path='/companies' exact component={CompaniesView}></Route>
-              <Route path='/cities' exact component={CitiesView}></Route>
+              <Route
+                path='/organizations'
+                exact
+                component={OrganizationView}></Route>
+              <Route path='/places' exact component={PlacesView}></Route>
               <Route path='/countries' exact component={CountriesView}></Route>
             </Switch>
           </Router>

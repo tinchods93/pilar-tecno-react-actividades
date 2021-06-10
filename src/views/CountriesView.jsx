@@ -1,38 +1,55 @@
 import React, { Component } from 'react';
 import FormComponent from '../components/FormComponent';
 import { CountryModel } from '../models/Models';
-import { DataBaseFunctions } from '../utils/localStorageFunctions';
+import { DataBaseFunctions } from '../utils/apiFunctions';
 import { ListComponent } from '../components/ListComponent';
 
 export class CountriesView extends Component {
   constructor() {
     super();
     this.state = {
-      countryListNames: [],
+      countryList: [],
       countryObject: CountryModel,
       showForm: 'none',
     };
-    this.SaveCountry = DataBaseFunctions.SaveCountry.bind(this);
+    this.SaveCountry = this.SaveCountry.bind(this);
+    this.removeCountry = this.removeCountry.bind(this);
   }
 
   componentDidMount() {
     this.prepareList();
   }
 
-  prepareList() {
-    const countryList = DataBaseFunctions.GetCountriesNames();
+  SaveCountry = async (obj) => {
+    const new_list = await DataBaseFunctions.SaveCountry(obj);
+    if (new_list !== undefined) {
+      this.setState({ countryList: new_list });
+    }
+  };
 
-    this.setState({ countryListNames: countryList });
+  async removeCountry(ev) {
+    const new_list = await DataBaseFunctions.RemoveCountry(ev.target.id);
+    if (new_list !== undefined) {
+      this.setState({ countryList: new_list });
+    }
+  }
+
+  async prepareList() {
+    const countryList = await DataBaseFunctions.GetCountries();
+
+    this.setState({ countryList: countryList });
   }
 
   spawnForm = () => {
-    const { countryObject, showForm } = this.state;
-    if (showForm !== 'none') {
+    if (this.state.showForm !== 'none') {
+      const { countryObject } = this.state;
       return (
         <FormComponent
-          objectToShow={countryObject}
+          formObject={countryObject}
           title='New Country Form'
-          attributesToIgnore={['cities']}
+          objectAttributes={['name']}
+          dataList={[]}
+          selectAttributes={[]}
           savingFunction={this.SaveCountry}
         />
       );
@@ -47,6 +64,7 @@ export class CountriesView extends Component {
   };
 
   render() {
+    const { countryList } = this.state;
     return (
       <>
         <div className='formContainer col'>
@@ -55,47 +73,14 @@ export class CountriesView extends Component {
           </button>
           {this.spawnForm()}
         </div>
-        <LocalListComponent listTitle='Countries' />
+
+        <ListComponent
+          dataList={[]}
+          itemList={countryList}
+          listTitle={'Countries'}
+          removeFunction={this.removeCountry}
+        />
       </>
-    );
-  }
-}
-
-export default class LocalListComponent extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      mostrarForm: 'none',
-      countriesToShow: [],
-    };
-    this.removeCountry = this.removeCountry.bind(this);
-  }
-
-  removeCountry(ev) {
-    DataBaseFunctions.RemoveCountry(ev.target.id);
-    this.updateList();
-  }
-
-  componentDidMount() {
-    this.updateList();
-  }
-
-  updateList() {
-    this.setState({
-      countriesToShow: DataBaseFunctions.GetCountriesNames(),
-    });
-  }
-
-  render() {
-    const { countriesToShow } = this.state;
-    const { listTitle } = this.props;
-    return (
-      <ListComponent
-        dataList={[]}
-        itemList={countriesToShow}
-        listTitle={listTitle}
-        removeFunction={this.removeCountry}
-      />
     );
   }
 }

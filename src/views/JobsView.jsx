@@ -1,30 +1,138 @@
 import React, { Component } from 'react';
 import FormComponent from '../components/FormComponent';
 import { JobModel } from '../models/Models';
-import { DataBaseFunctions } from '../utils/localStorageFunctions';
+import { DataBaseFunctions } from '../utils/apiFunctions';
 import { ListComponent } from '../components/ListComponent';
 
 export class JobsView extends Component {
   constructor() {
     super();
     this.state = {
-      jobs: [],
+      jobList: [],
       jobObject: JobModel,
+      countryList: [],
+      placeList: [],
+      organizationList: [],
+      countrySelected: '',
+      placeSelected: '',
+      organizationSelected: '',
       showForm: 'none',
     };
-    this.SaveJob = DataBaseFunctions.SaveJob.bind(this);
+
+    this.removeJob = this.removeJob.bind(this);
+    this.selectHandler = this.selectHandler.bind(this);
   }
 
-  spawnForm = () => {
-    if (this.state.showForm !== 'none') {
-      return (
-        <FormComponent
-          objectToShow={this.state.jobObject}
-          selectButtonsIndexes={[1, 2, 3]}
-          savingFunction={this.SaveJob}
-        />
-      );
+  SaveJob = async (obj) => {
+    const new_list = await DataBaseFunctions.SaveJob(obj);
+
+    if (new_list !== undefined) {
+      this.setState({ jobList: new_list });
     }
+  };
+
+  componentDidMount() {
+    this.prepareList();
+  }
+
+  async prepareList() {
+    const countryList = await DataBaseFunctions.GetCountries();
+    const placeList = await DataBaseFunctions.GetPlaces(countryList[0].id);
+    const organizationList = await DataBaseFunctions.GetOrganizations(
+      placeList[0].id
+    );
+    const jobList = await DataBaseFunctions.GetJobs(organizationList[0].id);
+
+    this.setState({
+      countryList: countryList,
+      placeList: placeList,
+      organizationList: organizationList,
+      countrySelected: countryList[0],
+      placeSelected: placeList[0],
+      organizationSelected: organizationList[0],
+      jobList: jobList,
+    });
+  }
+
+  async removeJob(ev) {
+    const new_list = await DataBaseFunctions.RemoveJob(ev.target.id);
+
+    if (new_list !== undefined) {
+      this.setState({ jobList: new_list });
+    }
+  }
+
+  selectHandler = async (ev) => {
+    let organizationList = [];
+    let newJobList = [];
+
+    switch (ev.target.id) {
+      case 'countrie':
+        const newCountrySelected_id = ev.target.value;
+        const placeList = await DataBaseFunctions.GetPlaces(
+          newCountrySelected_id
+        );
+        organizationList = await DataBaseFunctions.GetOrganizations(
+          placeList[0].id
+        );
+
+        newJobList = await DataBaseFunctions.GetJobs(organizationList[0].id);
+        this.setState({
+          placeList: placeList,
+          organizationList: organizationList,
+          countrySelected: await DataBaseFunctions.GetCountryById(
+            newCountrySelected_id
+          ),
+          placeSelected: placeList[0],
+          organizationSelected: organizationList[0],
+          jobList: newJobList,
+        });
+        break;
+      case 'place':
+        let newPlaceSelected = ev.target.value;
+        organizationList = await DataBaseFunctions.GetOrganizations(
+          newPlaceSelected
+        );
+        newPlaceSelected = await DataBaseFunctions.GetPlaceById(
+          newPlaceSelected
+        );
+        this.setState({
+          placeSelected: newPlaceSelected,
+          organizationList: organizationList,
+          organizationSelected: organizationList[0],
+          jobList: await DataBaseFunctions.GetJobs(organizationList[0].id),
+        });
+        break;
+      case 'organization':
+        let newOrganizationSelected = ev.target.value;
+
+        newJobList = await DataBaseFunctions.GetJobs(newOrganizationSelected);
+        newOrganizationSelected = await DataBaseFunctions.GetOrganizationsById(
+          newOrganizationSelected
+        );
+
+        this.setState({
+          organizationSelected: newOrganizationSelected,
+          jobList: newJobList,
+        });
+        break;
+      default:
+        break;
+    }
+    const dataModel = this.state.jobObject;
+    const { countrySelected, placeSelected, organizationSelected } = this.state;
+
+    if (countrySelected !== undefined) {
+      dataModel.countrieId = countrySelected.id;
+    }
+    if (placeSelected !== undefined) {
+      dataModel.placeId = placeSelected.id;
+    }
+    if (organizationSelected !== undefined) {
+      dataModel.organizationId = organizationSelected.id;
+    }
+
+    this.setState({ jobObject: dataModel });
   };
 
   showForm = () => {
@@ -33,7 +141,50 @@ export class JobsView extends Component {
       : this.setState({ showForm: 'none' });
   };
 
+  spawnForm = () => {
+    const {
+      jobObject,
+      countryList,
+      placeList,
+      organizationList,
+      countrySelected,
+      placeSelected,
+      organizationSelected,
+    } = this.state;
+    if (this.state.showForm !== 'none') {
+      return (
+        <FormComponent
+          formObject={jobObject}
+          title='New Job Form'
+          objectAttributes={[
+            'position',
+            'description',
+            'countrie',
+            'place',
+            'organization',
+          ]}
+          countrySelected={countrySelected}
+          placeSelected={placeSelected}
+          organizationSelected={organizationSelected}
+          dataList={[countryList, placeList, organizationList]}
+          selectAttributes={['countrie', 'place', 'organization']}
+          savingFunction={this.SaveJob}
+          selectHandler={this.selectHandler}
+        />
+      );
+    }
+  };
+
   render() {
+    const {
+      countryList,
+      placeList,
+      organizationList,
+      jobList: jobs,
+      countrySelected,
+      placeSelected,
+      organizationSelected,
+    } = this.state;
     return (
       <>
         <div className='formContainer col'>
@@ -42,143 +193,21 @@ export class JobsView extends Component {
           </button>
           {this.spawnForm()}
         </div>
-        <LocalListComponent listTitle='Jobs' />
+        <ListComponent
+          dataList={[countryList, placeList, organizationList]}
+          itemList={jobs}
+          selected={[
+            countrySelected.id,
+            placeSelected.id,
+            organizationSelected.id,
+          ]}
+          listTitle={'jobs'}
+          onChangeFunction={this.selectHandler}
+          selectTitle={['Countrie', 'Place', 'Organization']}
+          attribute={['countrie', 'place', 'organization']}
+          removeFunction={this.removeJob}
+        />
       </>
-    );
-  }
-}
-
-export default class LocalListComponent extends Component {
-  constructor(props) {
-    super(props);
-    this.state = {
-      mostrarForm: 'none',
-      jobsToShow: [],
-      countryList: [],
-      cityList: [],
-      companyList: [],
-      countrySelected: '',
-      citySelected: '',
-      companySelected: '',
-    };
-    this.removeJob = this.removeJob.bind(this);
-    this.selectHandler = this.selectHandler.bind(this);
-  }
-
-  removeJob(ev) {
-    const { countrySelected, citySelected, companySelected } = this.state;
-    DataBaseFunctions.RemoveJob(
-      countrySelected,
-      citySelected,
-      companySelected,
-      ev.target.id
-    );
-    this.setState({
-      jobsToShow: DataBaseFunctions.GetJobsNames(
-        countrySelected,
-        citySelected,
-        companySelected
-      ),
-    });
-  }
-
-  componentDidMount() {
-    this.prepareList();
-  }
-
-  selectHandler = (ev) => {
-    console.log(ev.target.value);
-
-    switch (ev.target.id) {
-      case 'country':
-        const newCountrySelected = ev.target.value;
-        const cityList = DataBaseFunctions.GetCitiesNames(newCountrySelected);
-        const companyList = DataBaseFunctions.GetCompaniesNames(
-          newCountrySelected,
-          cityList[0]
-        );
-
-        this.setState({
-          cityList: cityList,
-          companyList: companyList,
-          countrySelected: newCountrySelected,
-          citySelected: cityList[0],
-          companySelected: companyList[0],
-          jobsToShow: DataBaseFunctions.GetJobsNames(
-            newCountrySelected,
-            cityList[0],
-            companyList[0]
-          ),
-        });
-        break;
-      case 'city':
-        const newCitySelected = ev.target.value;
-        const companiesList = DataBaseFunctions.GetCompaniesNames(
-          this.state.countrySelected,
-          newCitySelected
-        );
-
-        this.setState({
-          citySelected: newCitySelected,
-          companyList: companiesList,
-          companySelected: companiesList[0],
-          jobsToShow: DataBaseFunctions.GetJobsNames(
-            this.state.countrySelected,
-            newCitySelected,
-            companiesList[0]
-          ),
-        });
-        break;
-      case 'company':
-        const newCompanySelected = ev.target.value;
-        const newJobList = DataBaseFunctions.GetJobsNames(
-          this.state.countrySelected,
-          this.state.citySelected,
-          newCompanySelected
-        );
-        this.setState({ jobsToShow: newJobList });
-        break;
-      default:
-        break;
-    }
-  };
-
-  prepareList() {
-    const countryList = DataBaseFunctions.GetCountriesNames();
-    const cityList = DataBaseFunctions.GetCitiesNames(countryList[0]);
-    const companyList = DataBaseFunctions.GetCompaniesNames(
-      countryList[0],
-      cityList[0]
-    );
-
-    this.setState({
-      countryList: countryList,
-      cityList: cityList,
-      companyList: companyList,
-      countrySelected: countryList[0],
-      citySelected: cityList[0],
-      companySelected: companyList[0],
-      jobsToShow: DataBaseFunctions.GetJobsNames(
-        countryList[0],
-        cityList[0],
-        companyList[0]
-      ),
-    });
-  }
-
-  render() {
-    const { countryList, cityList, companyList, jobsToShow } = this.state;
-    const { listTitle } = this.props;
-    return (
-      <ListComponent
-        dataList={[countryList, cityList, companyList]}
-        itemList={jobsToShow}
-        listTitle={listTitle}
-        onChangeFunction={this.selectHandler}
-        selectTitle={['Country', 'City', 'Company']}
-        attribute={['country', 'city', 'company']}
-        removeFunction={this.removeJob}
-      />
     );
   }
 }
