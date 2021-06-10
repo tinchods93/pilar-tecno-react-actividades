@@ -116,31 +116,6 @@ const GetJobById = async (jobId) => {
     .catch((err) => console.error(err));
   return job;
 };
-
-const GetCountryID = async (countryName) => {
-  const countryDB = await GetCountries();
-  const country = countryDB.find((country) => country.name === countryName);
-  return country !== undefined ? country.id : undefined;
-};
-
-const GetPlaceID = async (placeName, countrieId) => {
-  const placeDB = await GetPlaces(countrieId);
-  console.log(placeName);
-  const place = placeDB.find((place) => place.name === placeName);
-  console.log(place);
-  return place !== undefined ? place.id : undefined;
-};
-
-const GetOrganizationID = async (organizationName, placeId) => {
-  const organizationDB = await GetOrganizations(placeId);
-
-  const organization = organizationDB.find(
-    (organization) => organization.name === organizationName
-  );
-  console.log(organization);
-  return organization !== undefined ? organization.id : undefined;
-};
-
 //SAVE FUNCTIONS
 export const SaveCountry = async (obj) => {
   let canSave = true;
